@@ -1,3 +1,4 @@
+#O(N)
 def moveZeros(num):
     j = 0
     for i in range(len(num)):

@@ -7,21 +7,39 @@ def rotate(num, k):
     return res
 
 #无需重新开辟数组，把被替换的数字直接用temp表示,空间复杂度O(1)
+# def rotate1(num, k):
+#     count = 0
+#     k = k % len(num)
+#     start = 0
+#     cur = start
+#     pre = num[cur]
+#     while count < len(num):
+#         next = (cur + k) % len(num)
+#         temp = num[next]
+#         num[next] = pre
+#         pre = temp
+#         cur = next
+#         count += 1
+#
+#     return num
+
 def rotate1(num, k):
     count = 0
-    k = k % len(num)
-    start = 0
-    cur = start
-    pre = num[cur]
+    current = 0
+    cur_value = num[current]
+
     while count < len(num):
-        next = (cur + k) % len(num)
+        next = (current + k ) % len(num)
         temp = num[next]
-        num[next] = pre
-        pre = temp
-        cur = next
+        num[next] = cur_value
+
+        current = next
+        cur_value = temp
         count += 1
 
     return num
+
+
 
 
 

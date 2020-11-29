@@ -61,13 +61,6 @@ def inorder(root):
     return root
 
 
-def div(alist, cut_off):
-    slist = []
-    llist = []
-    for i in range(len(alist)):
-        if alist[i] < cut_off:
-            slist.append(alist[i])
-    return slist
 #
 # print(div([1,2,3,4,5,5,6,6,7,7], 6))
 inorder(root)

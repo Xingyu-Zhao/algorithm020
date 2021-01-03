@@ -1,69 +1,138 @@
-import networkx as nx
-import matplotlib.pyplot as plt
+class Node(object):
+    """节点类"""
+    def __init__(self, elem=-1, lchild=None, rchild=None):
+        self.elem = elem
+        self.lchild = lchild
+        self.rchild = rchild
 
 
-data = [8, 4, 1, 2, 3, 56, 43, 6, 8, 0, 7]
-class Node:
-    def __init__(self, value=None, left=None, right=None):
-        self.value = value
-        self.left = left
-        self.right = right
+class Tree(object):
+    """树类"""
+    def __init__(self):
+        self.root = Node()
+        self.myQueue = []
 
-def insert(root, value):
-    if root is None:
-        root = Node(value)
-
-    else:
-        if value < root.value:
-            root.left = insert(root.left, value)
-        elif value > root.value:
-            root.right = insert(root.right, value)
+    def add(self, elem):
+        """为树添加节点"""
+        node = Node(elem)
+        if self.root.elem == -1:  # 如果树是空的，则对根节点赋值
+            self.root = node
+            self.myQueue.append(self.root)
         else:
-            pass
-    return root
-def draw(node):   # 以某个节点为根画图
-    graph = nx.DiGraph()
-    graph, pos = create_graph(graph, node)
-    fig, ax = plt.subplots(figsize=(8, 10))  # 比例可以根据树的深度适当调节
-    nx.draw_networkx(graph, pos, ax=ax, node_size=300)
-    plt.show()
+            treeNode = self.myQueue[0]  # 此结点的子树还没有齐。
+            if treeNode.lchild == None:
+                treeNode.lchild = node
+                self.myQueue.append(treeNode.lchild)
+            else:
+                treeNode.rchild = node
+                self.myQueue.append(treeNode.rchild)
+                self.myQueue.pop(0)  # 如果该结点存在右子树，将此结点丢弃。
 
-def create_graph(G, node, pos={}, x=0, y=0, layer=1):
-    pos[node.value] = (x, y)
-    if node.left:
-        G.add_edge(node.value, node.left.value)
-        l_x, l_y = x - 1 / 2 ** layer, y - 1
-        l_layer = layer + 1
-        create_graph(G, node.left, x=l_x, y=l_y, pos=pos, layer=l_layer)
-    if node.right:
-        G.add_edge(node.value, node.right.value)
-        r_x, r_y = x + 1 / 2 ** layer, y - 1
-        r_layer = layer + 1
-        create_graph(G, node.right, x=r_x, y=r_y, pos=pos, layer=r_layer)
-    return (G, pos)
+    def front_digui(self, root):
+        """利用递归实现树的先序遍历"""
+        if root == None:
+            return
+        print(root.elem)
+        self.front_digui(root.lchild)
+        self.front_digui(root.rchild)
 
-root = None
-for i in data[:]:
-    #新的树构建需要老的树和新节点的值
-    root = insert(root, i)
+    def middle_digui(self, root):
+        """利用递归实现树的中序遍历"""
+        if root == None:
+            return
+        self.middle_digui(root.lchild)
+        print(root.elem)
+        self.middle_digui(root.rchild)
 
-    # print(root.value)
-draw(root)
+    def later_digui(self, root):
+        """利用递归实现树的后序遍历"""
+        if root == None:
+            return
+        self.later_digui(root.lchild)
+        self.later_digui(root.rchild)
+        print(root.elem)
 
+    def front_stack(self, root):
+        """利用堆栈实现树的先序遍历"""
+        if root == None:
+            return
+        myStack = []
+        node = root
+        while node or myStack:
+            while node:  # 从根节点开始，一直找它的左子树
+                print(node.elem)
+                myStack.append(node)
+                node = node.lchild
+            node = myStack.pop()  # while结束表示当前节点node为空，即前一个节点没有左子树了
+            node = node.rchild  # 开始查看它的右子树
 
-def inorderTraversal(root):
-    WHITE, GRAY = 0, 1
-    res = []
-    stack = [(WHITE, root)]
-    while stack:
-        color, node = stack.pop()
-        if node is None: continue
-        if color == WHITE:
-            stack.append((WHITE, node.right))
-            stack.append((GRAY, node))
-            stack.append((WHITE, node.left))
-        else:
-            res.append(node.value)
-    return res
-# root = list(root)
-print(inorderTraversal(root))
+    def middle_stack(self, root):
+        """利用堆栈实现树的中序遍历"""
+        if root == None:
+            return
+        myStack = []
+        node = root
+        while node or myStack:
+            while node:  # 从根节点开始，一直找它的左子树
+                myStack.append(node)
+                node = node.lchild
+            node = myStack.pop()  # while结束表示当前节点node为空，即前一个节点没有左子树了
+            print(node.elem)
+            node = node.rchild # 开始查看它的右子树
+
+    def later_stack(self, root):
+        """利用堆栈实现树的后序遍历"""
+        if root == None:
+            return
+        myStack1 = []
+        myStack2 = []
+        node = root
+        myStack1.append(node)
+        while myStack1:  # 这个while循环的功能是找出后序遍历的逆序，存在myStack2里面
+            node = myStack1.pop()
+            if node.lchild:
+                myStack1.append(node.lchild)
+            if node.rchild:
+                myStack1.append(node.rchild)
+            myStack2.append(node)
+        while myStack2:  # 将myStack2中的元素出栈，即为后序遍历次序
+            print(myStack2.pop().elem)
+
+    def level_queue(self, root):
+        """利用队列实现树的层次遍历"""
+        if root == None:
+            return
+        myQueue = []
+        node = root
+        myQueue.append(node)
+        while myQueue:
+            node = myQueue.pop(0)
+            print(node.elem)
+            if node.lchild != None:
+                myQueue.append(node.lchild)
+            if node.rchild != None:
+                myQueue.append(node.rchild)
+
+if __name__ == '__main__':
+    """主函数"""
+    elems = range(10)           #生成十个数据作为树节点
+    tree = Tree()          #新建一个树对象
+    for elem in elems:
+        tree.add(elem)           #逐个添加树的节点
+
+    print ('队列实现层次遍历:')
+    tree.level_queue(tree.root)
+
+    print ('\n\n递归实现先序遍历:')
+    tree.front_digui(tree.root)
+    print ('\n递归实现中序遍历:' )
+    tree.middle_digui(tree.root)
+    print ('\n递归实现后序遍历:')
+    tree.later_digui(tree.root)
+
+    print ('\n\n堆栈实现先序遍历:')
+    tree.front_stack(tree.root)
+    print ('\n堆栈实现中序遍历:')
+    tree.middle_stack(tree.root)
+    print ('\n堆栈实现后序遍历:')
+    tree.later_stack(tree.root)
